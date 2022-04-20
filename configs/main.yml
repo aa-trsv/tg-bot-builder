@@ -1,0 +1,11 @@
+db_file: "app.db"
+
+messages:
+  responses:
+    start: "Привет! Я бот для работы с сервером OTRS."
+    rebuild: "Пересбока конфига, прошла успешно"
+    unknown_command: "Я не знаю такой команды"
+
+ssh_commands:
+  build: "cd /opt/otrs/ && git checkout Testing_new_ift && git pull && sudo -u otrs bin/otrs.Console.pl Dev::Package::Build Sber4OTRS_Main.sopm /opt/otrs/package"
+  rebuild: "cd /opt/otrs/ && sudo -u otrs bin/otrs.Console.pl Maint::Cache::Delete && sudo -u otrs bin/otrs.Console.pl Maint::Config::Rebuild && systemctl restart httpd"
