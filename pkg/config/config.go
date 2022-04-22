@@ -5,10 +5,11 @@ import (
 )
 
 type Config struct {
-	TelegramToken string
-	DirPath       string
-	DBPath        string `mapstructure:"db_file"`
-	Debug         bool   `mapstructure:"debug"`
+	TelegramToken  string
+	DirPath        string
+	FilePathDamper string
+	DBPath         string `mapstructure:"db_file"`
+	Debug          bool   `mapstructure:"debug"`
 
 	Messages   Messages
 	SSHCommand SSHCommand
@@ -63,9 +64,13 @@ func parseEnv(cfg *Config) error {
 	if err := viper.BindEnv("dir_path"); err != nil {
 		return err
 	}
+	if err := viper.BindEnv("file_path_dumper"); err != nil {
+		return err
+	}
 
 	cfg.TelegramToken = viper.GetString("token")
-	cfg.DirPath = viper.GetString("token")
+	cfg.DirPath = viper.GetString("dir_path")
+	cfg.FilePathDamper = viper.GetString("file_path_dumper")
 	cfg.Debug = viper.GetBool("debug")
 
 	return nil

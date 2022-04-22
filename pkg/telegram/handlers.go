@@ -1,8 +1,10 @@
 package telegram
 
 import (
+	"fmt"
 	"github.com/aa-trsv/telegram-bot-otrs-builder/pkg/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -13,6 +15,7 @@ const (
 	commandStart = "start"
 	buildStage   = "stage"
 	rebuildStage = "rebuild"
+	dumper       = "dumper"
 )
 
 func (b *Bot) handleCommand(message *tgbotapi.Message) error {
@@ -23,6 +26,8 @@ func (b *Bot) handleCommand(message *tgbotapi.Message) error {
 		return b.handlerStageCommand(message)
 	case rebuildStage:
 		return b.handlerRebuildStageCommand(message)
+	case dumper:
+		return b.handlerDumperCommand(message)
 	default:
 		return b.handlerUnknownCommand(message)
 	}
@@ -44,6 +49,30 @@ func (b *Bot) handlerStartCommand(message *tgbotapi.Message) error {
 	}
 
 	_, err := b.bot.Send(msg)
+	return err
+}
+
+func (b *Bot) handlerDumperCommand(message *tgbotapi.Message) error {
+	filePath := b.config.FilePathDamper
+
+	data, err := b.readDumperFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	for _, text := range data {
+		if text == "" {
+			continue
+		}
+
+		msg := tgbotapi.NewMessage(message.Chat.ID, text)
+		_, err = b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = os.Remove(filePath)
 	return err
 }
 
@@ -87,6 +116,37 @@ func (b *Bot) handlerUnknownCommand(message *tgbotapi.Message) error {
 	msg.Text = access
 	_, err = b.bot.Send(msg)
 	return err
+}
+
+func (b *Bot) readDumperFile(filePath string) ([]string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	fStat, err := file.Stat()
+	chank := int(fStat.Size() / 4096)
+	if chank == 0 {
+		chank = 1
+	}
+
+	messages := make([]string, chank)
+	data := make([]byte, 4096)
+
+	for x := 0; x <= chank; x++ {
+		for {
+			n, err := file.Read(data)
+			if err == io.EOF {
+				break
+			}
+
+			messages = append(messages, string(data[:n]))
+		}
+	}
+
+	return messages, nil
 }
 
 func (b *Bot) getFilePath(path string) (string, error) {
