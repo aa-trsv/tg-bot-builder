@@ -53,7 +53,7 @@ func (b *Bot) handlerStartCommand(message *tgbotapi.Message) error {
 }
 
 func (b *Bot) handlerDumperCommand(message *tgbotapi.Message) error {
-	filePath := b.config.FilePathDamper
+	filePath := b.config.FilePathDumper
 
 	data, err := b.readDumperFile(filePath)
 	if err != nil {

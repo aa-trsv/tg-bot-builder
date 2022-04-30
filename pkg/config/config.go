@@ -7,7 +7,7 @@ import (
 type Config struct {
 	TelegramToken  string
 	DirPath        string
-	FilePathDamper string
+	FilePathDumper string
 	DBPath         string `mapstructure:"db_file"`
 	Debug          bool   `mapstructure:"debug"`
 
@@ -70,7 +70,7 @@ func parseEnv(cfg *Config) error {
 
 	cfg.TelegramToken = viper.GetString("token")
 	cfg.DirPath = viper.GetString("dir_path")
-	cfg.FilePathDamper = viper.GetString("file_path_dumper")
+	cfg.FilePathDumper = viper.GetString("file_path_dumper")
 	cfg.Debug = viper.GetBool("debug")
 
 	return nil
